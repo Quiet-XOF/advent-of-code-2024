@@ -1,37 +1,23 @@
-# Part 1
 with open("Day2-input.txt", "r") as file:
-    lines = file.read()
+    lines = file.readlines()
 
-lines = lines.split("\n")
-reports = []
-
-for line in lines:
-    breakup = line.split()
-    if breakup:
-        reports.append([int(num) for num in breakup])
+reports = [list(map(int, line.strip().split())) for line in lines]
 
 safe_reports = 0
+damp_reports = 0
 
-def check1(report): # Either increase or decrease
-    sorted_report = sorted(report)
-    if sorted_report == report:
-        return True
-    reverse_report = sorted_report[::-1]
-    if reverse_report == report:
-        return True
-    return False
-
-def check2(report): # Ints differ by at least one, at most three
-    for i in range(0, len(report) - 1):
-        diff = abs(report[i] - report[i+1])
-        if diff < 1 or diff > 3:
-            return False
-    return True
+def safe_list(report):
+    # Check ascending and descending
+    # Check if difference is at least 1 and at most 3
+    return sorted(report) in [report, report[::-1]] \
+    and all(1 <= abs(first-second) <= 3 for first, second in zip(report, report[1:]))
 
 for report in reports:
-    if check1(report) == True and check2(report) == True:
+    if safe_list(report):
         safe_reports += 1
+    # Slice the list and see if the left and right side can pass at least once
+    elif any(safe_list(report[:i] + report[i+1:]) for i in range(len(report))):
+        damp_reports += 1
 
-print(f"Safe Reports: {safe_reports}")
-
-# Part 2
+print("Safe reports:", safe_reports)
+print("With dampening:", safe_reports + damp_reports)
